@@ -1,0 +1,20 @@
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "S", "A"]
+
+[tool.ruff.lint.per-file-ignores]
+# S101: pytest's entire API is assert, and tests never run under -O.
+# Scoped to tests/ so the rule still fires in app/ and model/, where it matters.
+"tests/*" = ["S101"]
+# S311: dataset.py uses random ONLY to generate synthetic training data from a fixed seed.
+# There is no security decision here; a CSPRNG would only make the data non-reproducible.
+# Scoped to this one file so S311 still fires anywhere a real token/nonce might be generated.
+"model/dataset.py" = ["S311"]
+
+[tool.bandit]
+# Tests use assert by design; exclude them from bandit's B101 the same way and for the same reason.
+exclude_dirs = ["tests"]
+# B311 mirrors S311: synthetic-data randomness in dataset.py, not security randomness. Reason recorded.
+skips = ["B311"]
